@@ -1,8 +1,13 @@
 import json
 import re
-
 import requests
+import nltk
+
 from nltk.corpus import stopwords
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 
 def get_words(text_content):
