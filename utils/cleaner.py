@@ -26,9 +26,10 @@ def get_words(text_content):
     return only_text.split()
 
 
-def processing_words(text_content, own_words=None):
+def processing_words(text_content, own_words=None, lang="spanish"):
     """ Function to processing words from text content
 
+        :param lang: language
         :param text_content    The text content
         :param own_words       Words customized
     """
@@ -37,7 +38,7 @@ def processing_words(text_content, own_words=None):
         own_words = []
     words = get_words(text_content)
 
-    spanish_stops = set(stopwords.words('spanish') + own_words)
+    spanish_stops = set(stopwords.words(lang) + own_words)
 
     return " ".join([word for word in words if word not in spanish_stops and len(word) > 3])
 
