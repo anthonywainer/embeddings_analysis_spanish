@@ -22,8 +22,8 @@ def get_words(text_content):
     only_text = re.sub(
         r'(#[A-Za-z0-9_]+)|(.#[A-Za-z0-9_]+)|(@[A-Za-z0-9_]+)|(.@[A-Za-z0-9_]+)|(http\S+)|([^a-záéíóúñ ]+)', ' ',
         emoji_text)
-
-    return only_text.split()
+    dropped_words = set(only_text.split())
+    return list(dropped_words)
 
 
 def processing_words(text_content, own_words=None, lang="spanish"):
