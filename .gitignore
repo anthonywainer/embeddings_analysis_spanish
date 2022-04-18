@@ -52,3 +52,5 @@ geckodriver.log
 .history
 .vscode
 /venv/
+/data/gensim/*.vec
+/data/gensim/*.txt
