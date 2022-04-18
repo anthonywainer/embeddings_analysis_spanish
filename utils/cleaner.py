@@ -70,5 +70,5 @@ class EmojiDecode:
         return self.multiple_replace(emojis, text)
 
 
-emoji = EmojiDecode(
-    'https://github.com/AnthonyWainer/AutoencoderNLP/blob/master/dataset/emoticones.json?raw=true')
+__URL__ = 'https://github.com/anthonywainer/embeddings_analysis_spanish/blob/master/dataset/emoticones.json?raw=true'
+emoji = EmojiDecode(__URL__)
