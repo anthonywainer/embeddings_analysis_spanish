@@ -1,6 +1,6 @@
 from typing import List
 
-from .BaseCleaning import BaseCleaning
+from .base_cleaning import BaseCleaning
 from ..utils.cleaner import processing_words
 
 

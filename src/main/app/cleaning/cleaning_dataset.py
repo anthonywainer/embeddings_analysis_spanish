@@ -1,8 +1,8 @@
-from .BBCCleaning import BBCCleaning
-from .ComplaintsCleaning import ComplaintsCleaning
-from .FoodCleaning import FoodCleaning
-from .IMDBCleaning import IMDBCleaning
-from .ScopusCleaning import ScopusCleaning
+from .bbc_cleaning import BBCCleaning
+from .complaints_cleaning import ComplaintsCleaning
+from .food_cleaning import FoodCleaning
+from .imdb_cleaning import IMDBCleaning
+from .scopus_cleaning import ScopusCleaning
 
 if __name__ == "__main__":
     BBCCleaning().process()

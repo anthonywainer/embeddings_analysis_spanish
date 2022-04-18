@@ -3,7 +3,7 @@ from typing import List
 import pandas as pd
 from textblob import TextBlob
 
-from .BaseCleaning import BaseCleaning
+from .base_cleaning import BaseCleaning
 from ..utils.cleaner import processing_words
 
 
