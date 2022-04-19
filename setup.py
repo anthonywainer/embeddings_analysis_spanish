@@ -23,7 +23,10 @@ setup(
         "Programming Language :: Python :: 3",
         "License :: Open Source"
     ],
-    python_requires='>=3.8.x'
+    python_requires='>=3.7.x',
+    install_requires=[
+        "scikit-learn==0.22.2", "transformers==4.18.0"
+    ]
 )
 
 readme.close()
