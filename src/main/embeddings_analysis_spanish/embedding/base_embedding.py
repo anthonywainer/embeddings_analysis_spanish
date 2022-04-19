@@ -9,7 +9,7 @@ from transformers import pipeline
 from gensim.models import KeyedVectors
 from sklearn.preprocessing import StandardScaler
 
-from app.utils.logger import Logger
+from embeddings_analysis_spanish.utils.logger import Logger
 
 
 class BaseEmbedding(Logger):
@@ -31,8 +31,9 @@ class BaseEmbedding(Logger):
         self.glove_es = KeyedVectors.load_word2vec_format(f'{self.gensim_path}/glove-sbwc.i25.vec')
 
     @staticmethod
-    def extract_gpt_embedding(texts: np.array, tokenizer,
-                              model: TFGPT2Model.from_pretrained,
+    def extract_gpt_embedding(model: TFGPT2Model.from_pretrained,
+                              texts: np.array,
+                              tokenizer: GPT2Tokenizer.from_pretrained,
                               max_len: int = 768) -> np.ndarray:
         _array = np.ndarray(shape=(len(texts), max_len), dtype=np.float32)
 
@@ -46,7 +47,9 @@ class BaseEmbedding(Logger):
         return StandardScaler().fit_transform(_array)
 
     @staticmethod
-    def extract_beto_embedding(model: TFBertModel.from_pretrained, tokenizer, texts: np.array,
+    def extract_beto_embedding(model: TFBertModel.from_pretrained,
+                               texts: np.array,
+                               tokenizer: BertTokenizer.from_pretrained,
                                max_len: int = 768) -> np.ndarray:
         _array = np.ndarray(shape=(len(texts), max_len), dtype=np.float32)
 
@@ -66,8 +69,8 @@ class BaseEmbedding(Logger):
 
         return np.mean(data, axis=0) if len(data) else np.zeros(max_len)
 
-    def extract_gensim_embedding(self, model: KeyedVectors.load_word2vec_format, texts: np.array,
-                                 max_len: int) -> np.ndarray:
+    def extract_gensim_embedding(self, model: KeyedVectors.load_word2vec_format,
+                                 texts: np.array, max_len: int) -> np.ndarray:
         _array = np.ndarray(shape=(len(texts), max_len), dtype=np.float32)
 
         for idx, text in enumerate(texts):
@@ -81,8 +84,8 @@ class BaseEmbedding(Logger):
 
     def extract(self, name: str, values: np.array, max_len: int) -> np.ndarray:
         return {
-            "gpt2": self.extract_gpt_embedding(values, self.gpt2_tokenizer, self.gpt2_model),
-            "bert": self.extract_beto_embedding(self.bert_model, self.beto_tokenizer, values),
+            "gpt2": self.extract_gpt_embedding(self.gpt2_model, values, self.gpt2_tokenizer, max_len=max_len),
+            "bert": self.extract_beto_embedding(self.bert_model, values, self.beto_tokenizer, max_len=max_len),
             "w2v": self.extract_gensim_embedding(self.w2b_es, values, max_len=max_len),
             "fastText": self.extract_gensim_embedding(self.ft_es, values, max_len=max_len),
             "glove": self.extract_gensim_embedding(self.glove_es, values, max_len=max_len)
