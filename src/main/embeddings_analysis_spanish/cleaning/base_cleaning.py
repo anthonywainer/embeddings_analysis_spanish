@@ -3,7 +3,7 @@ from typing import Any
 
 class BaseCleaning(object):
 
-    def __int__(self, path: str = "data/dataset") -> None:
+    def __init__(self, path: str = "data/dataset") -> None:
         self.path = path
 
     @staticmethod

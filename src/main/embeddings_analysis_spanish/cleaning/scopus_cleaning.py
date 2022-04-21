@@ -14,7 +14,7 @@ class ScopusCleaning(BaseCleaning):
                 "economia", "salud", "tecnologia"]
 
     def process(self) -> None:
-        dataset = pd.read_excel(f"{self.path}/translated/PaperScopusES.xlsx")
+        dataset = pd.read_excel(f"{self.path}/translated/paper_scopus_es.xlsx")
 
         dataset.loc[:, 'clean_abstract'] = dataset.abstract.apply(processing_words)
         dataset = dataset.drop_duplicates(subset='DOI', keep="last")
@@ -29,4 +29,4 @@ class ScopusCleaning(BaseCleaning):
         )
 
         dataset = dataset.sort_values(by=['category'])
-        dataset.to_excel(f"{self.path}/processed/PaperScopusProcessed.xlsx", index=False)
+        dataset.to_excel(f"{self.path}/processed/paper_scopus_processed.xlsx", index=False)

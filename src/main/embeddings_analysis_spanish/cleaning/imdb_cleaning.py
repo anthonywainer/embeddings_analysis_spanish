@@ -1,3 +1,5 @@
+from typing import List
+
 import pandas as pd
 
 from .base_cleaning import BaseCleaning
@@ -9,7 +11,7 @@ class IMDBCleaning(BaseCleaning):
     def pre_cleaning(self) -> None:
         import cld3
         dataset = pd.read_csv(f"{self.path}/original/IMDB Dataset SPANISH.csv")
-        dataset.loc[:, ('clean_review')] = dataset.review_es.apply(processing_words)
+        dataset.loc[:, 'clean_review'] = dataset.review_es.apply(processing_words)
         dataset = dataset.drop_duplicates(subset='clean_review', keep="last")
         dataset.sort_index(inplace=True)
 
@@ -25,7 +27,7 @@ class IMDBCleaning(BaseCleaning):
         return ["id", "review", "clean_review", "sentiment", "words_len"]
 
     def process(self) -> None:
-        dataset = pd.read_excel(f"{self.path}/translated/IMDBES.xlsx")
+        dataset = pd.read_excel(f"{self.path}/translated/imdb_reviews_es.xlsx")
         dataset["words_len"] = dataset.clean_review.apply(lambda c: len(set(c.split())))
         dataset["id"] = range(0, len(dataset))
 
@@ -35,4 +37,4 @@ class IMDBCleaning(BaseCleaning):
         dataset = pd.concat([positive_df, negative_df])[self.__columns]
 
         dataset = dataset.sort_values(by=['sentiment'])
-        dataset.to_excel(f"{self.path}/processed/IMDBProcessed.xlsx", index=False)
+        dataset.to_excel(f"{self.path}/processed/imdb_reviews_processed.xlsx", index=False)

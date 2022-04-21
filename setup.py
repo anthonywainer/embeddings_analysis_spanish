@@ -17,7 +17,9 @@ setup(
     packages=['embeddings_analysis_spanish',
               'embeddings_analysis_spanish.cleaning',
               'embeddings_analysis_spanish.embedding',
-              'embeddings_analysis_spanish.utils',
+              'embeddings_analysis_spanish.evaluation',
+              'embeddings_analysis_spanish.modeling',
+              'embeddings_analysis_spanish.utils'
               ],
     classifiers=[
         "Programming Language :: Python :: 3",

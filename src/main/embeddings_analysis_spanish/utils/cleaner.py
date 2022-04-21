@@ -21,9 +21,7 @@ def get_words(text_content: AnyStr) -> List:
 
     emoji_text = emoji.replace_emoji(text_in_lower)
 
-    only_text = re.sub(
-        r'(#[A-Za-z0-9_]+)|(.#[A-Za-z0-9_]+)|(@[A-Za-z0-9_]+)|(.@[A-Za-z0-9_]+)|(http\S+)|([^a-záéíóúñ ]+)', ' ',
-        emoji_text)
+    only_text = re.sub(r'(#\w+)|(.#\w+)|(@\w+)|(.@\w+)|(http\S+)|([^a-záéíóúñ ]+)', ' ', emoji_text)
     dropped_words = set(only_text.split())
     return list(dropped_words)
 

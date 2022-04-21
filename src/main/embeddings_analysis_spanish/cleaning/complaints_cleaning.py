@@ -1,5 +1,7 @@
 from typing import List
 
+import pandas as pd
+
 from .base_cleaning import BaseCleaning
 from ..utils.cleaner import processing_words
 
@@ -38,7 +40,7 @@ class ComplaintsCleaning(BaseCleaning):
         ).to_excel(f"{self.path}/translated/ConsumerComplaintsPreClean.xlsx", index=False)
 
     def process(self) -> None:
-        dataset = pd.read_excel(f"{self.path}/translated/ConsumerComplaintsEs.xlsx")
+        dataset = pd.read_excel(f"{self.path}/translated/complaints_es.xlsx")
 
         dataset.loc[:, 'clean_complaints'] = dataset["complaint"].apply(
             lambda d: processing_words(d, self.__own_stop_words)
@@ -46,4 +48,4 @@ class ComplaintsCleaning(BaseCleaning):
         dataset = dataset.sort_values(
             by=['product']
         )
-        dataset.to_excel(f"{self.path}/processed/ConsumerComplaintsProcessed.xlsx", index=False)
+        dataset.to_excel(f"{self.path}/processed/complaints_processed.xlsx", index=False)

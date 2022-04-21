@@ -39,7 +39,7 @@ class FoodCleaning(BaseCleaning):
         nd.loc[nd.Polarity >= 0.36, 'sentiment'] = 'positive'
         nd.loc[((nd.Polarity > 0.0) & (nd.Polarity < 0.36)), 'sentiment'] = 'neutral'
         nd.loc[nd.Polarity < 0, 'sentiment'] = 'negative'
-        df1 = nd[(nd.sentimiento != "negativo") & (nd.Sentiment == "positive")][0:430]
+        df1 = nd[(nd.sentiment != "negativo") & (nd.sentiment == "positive")][0:430]
         df2 = nd[(nd.Sentiment == "negative")][0:430]
         df3 = nd[(nd.Sentiment == "neutral")][0:430]
 
@@ -52,6 +52,6 @@ class FoodCleaning(BaseCleaning):
         return ["id_review", "review", "clean_review", "sentiment", "words_len", "polarity"]
 
     def process(self) -> None:
-        dataset = pd.read_excel(f"{self.path}/translated/FoodReviewsES.xlsx")
+        dataset = pd.read_excel(f"{self.path}/translated/food_reviews_es.xlsx")
         dataset = dataset.sort_values(by=['sentiment'])[self.__columns]
-        dataset.to_excel(f"{self.path}/processed/FoodReviewsProcessed.xlsx", index=False)
+        dataset.to_excel(f"{self.path}/processed/food_reviews_processed.xlsx", index=False)
