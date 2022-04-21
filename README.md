@@ -5,9 +5,7 @@ Aim: Label text
 * 🐛 Anthony Wainer, Cachay Guivin 
 
 
-## Dataset:
 
-Coments with valoration
 
 ## Libraries:
 Keras, NLTK, BERT
