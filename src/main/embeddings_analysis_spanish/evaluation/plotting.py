@@ -8,7 +8,7 @@ from sklearn.manifold import TSNE
 from embeddings_analysis_spanish.evaluation.compute import get_metrics
 
 
-def plot_confusion_matrix(confusion_matrix, name: str, save=False, path: str = "") -> None:
+def plot_confusion_matrix(confusion_matrix: np.ndarray, name: str, save=False, path: str = "") -> None:
     plt.figure(figsize=(16, 14))
     sns.heatmap(confusion_matrix, annot=True, fmt="d", annot_kws={"size": 3})
     plt.title(f"Confusion matrix {name}", fontsize=30)
@@ -52,14 +52,13 @@ def plot_clustering_with_labels(embedding: np.ndarray, y_true: np.ndarray, y_pre
                                 name: str, label_encoders: Dict, save=False, path: str = "") -> None:
     """
     Plotting clustering between y_true and y_predicted
-    :param embedding: The embedding values
+    :param embedding: The embeddings values
     :param y_true: Original values
     :param y_predicted: Values predicted
-    :param name: The name embedding to show in plot
+    :param name: The name embeddings to show in plot
     :param label_encoders: label in dict format with position key and label how value ie. {1: label1, 2: label2, ....}
     :param save: If define in True must configure path in the next param
-    :param path:
-    :return:
+    :param path: for save plot
     """
 
     embedding = TSNE().fit_transform(embedding)
@@ -75,10 +74,12 @@ def plot_clustering_with_labels(embedding: np.ndarray, y_true: np.ndarray, y_pre
     left_scatter = ax[0].scatter(embedding[:, 0], embedding[:, 1], c=cluster_y_true)
     right_scatter = ax[1].scatter(embedding[:, 0], embedding[:, 1], c=cluster_y_predicted, cmap=plt.cm.Set1)
 
-    ax[0].set_title(f'{name} Embedding Analysis', fontsize=18)
+    metrics = get_metrics(y_true.argmax(1), y_predicted, 0)
+    ax[0].set_title(f'{name} Process Analysis', fontsize=18)
     ax[1].set_title(
-        "AE + Kmeans - ACC={0:.2f}, NMI={1:.2f}, ARI={2:.2f}".format(*get_metrics(y_true.argmax(1), y_predicted, 0)),
-        fontsize=12)
+        "AE + Kmeans - ACC={0:.2f}, NMI={1:.2f}, ARI={2:.2f}".format(*metrics.to_tuple),
+        fontsize=12
+    )
 
     ax[0].legend(handles=left_scatter.legend_elements()[0], labels=y_true_labels)
     ax[1].legend(handles=right_scatter.legend_elements()[0], labels=y_predicted_labels)

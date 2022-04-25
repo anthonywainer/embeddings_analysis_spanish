@@ -1,16 +1,15 @@
+import numpy as np
 from numpy import int64, zeros
 
-from sklearn.utils.linear_assignment_ import linear_assignment
+from embeddings_analysis_spanish.utils.assigment import linear_assignment
 
 
-def acc(y_true, y_predicted):
+def acc(y_true: np.array, y_predicted: np.array) -> np.array:
     """
     Calculate clustering accuracy
-    # Arguments
-        y: true labels, numpy.array with shape `(n_samples,)`
-        y_predicted: predicted labels, numpy.array with shape `(n_samples,)`
-    # Return
-        accuracy, in [0,1]
+    :param y_true: labels with shape `(n_samples,)`
+    :param y_predicted: predicted labels with shape `(n_samples,)`
+    :return: accuracy, in [0,1]
     """
     y_true = y_true.astype(int64)
     assert y_predicted.size == y_true.size

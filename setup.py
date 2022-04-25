@@ -3,6 +3,7 @@ import os
 from setuptools import setup
 
 readme = open(os.path.join(os.path.dirname(__file__), "README.md"), "r", encoding='latin-1')
+requirements = open(os.path.join(os.path.dirname(__file__), "requirements.txt"), "r", encoding='latin-1')
 setup(
     name="embeddings_analysis_spanish",
     version="1.0",
@@ -15,20 +16,21 @@ setup(
         '': 'src/main'
     },
     packages=['embeddings_analysis_spanish',
+              'embeddings_analysis_spanish.abstracts',
               'embeddings_analysis_spanish.cleaning',
-              'embeddings_analysis_spanish.embedding',
+              'embeddings_analysis_spanish.embeddings',
               'embeddings_analysis_spanish.evaluation',
               'embeddings_analysis_spanish.modeling',
+              'embeddings_analysis_spanish.models',
               'embeddings_analysis_spanish.utils'
               ],
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: Open Source"
+        "License :: Open Source with education focus"
     ],
     python_requires='>=3.7.x',
-    install_requires=[
-        "scikit-learn==0.22.2", "transformers==4.18.0"
-    ]
+    install_requires=requirements.readlines()
 )
 
+requirements.close()
 readme.close()

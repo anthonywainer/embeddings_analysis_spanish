@@ -19,7 +19,7 @@ class ScopusCleaning(BaseCleaning):
         dataset.loc[:, 'clean_abstract'] = dataset.abstract.apply(processing_words)
         dataset = dataset.drop_duplicates(subset='DOI', keep="last")
 
-        dataset["words_len"] = dataset["abstract"].apply(lambda c: self._count_words(c))
+        dataset["words_len"] = dataset["abstracts"].apply(lambda c: self._count_words(c))
 
         dataset = pd.concat(
             map(

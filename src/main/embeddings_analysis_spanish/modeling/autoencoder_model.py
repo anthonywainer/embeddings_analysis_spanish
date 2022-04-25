@@ -9,7 +9,6 @@ from keras.optimizer_v1 import SGD
 from keras.optimizer_v2.adam import Adam
 from sklearn.cluster import KMeans
 
-from embeddings_analysis_spanish.embedding.process_dataframes import ProcessDataFrames, DataFrameEmbeddings
 from embeddings_analysis_spanish.evaluation.compute import target_distribution, get_metrics
 from embeddings_analysis_spanish.modeling.base_model import BaseModel
 from embeddings_analysis_spanish.modeling.clustering_layer import ClusteringLayer
@@ -22,7 +21,7 @@ class AutoencoderModel(BaseModel):
         Fit and predict on batch
     """
 
-    def __init__(self, path: str,
+    def __init__(self, path: str = "data/results",
                  max_iteration: int = 100, update_interval: int = 140,
                  tolerance_threshold: float = 1e-3, batch_size: int = 512) -> None:
         """
@@ -33,8 +32,8 @@ class AutoencoderModel(BaseModel):
         :param batch_size: Batch Size
         """
 
-        super().__init__()
-        self.path = path
+        super().__init__(path)
+        self.model_name = "autoencoder_kmeans"
         self.max_iteration = max_iteration
         self.update_interval = update_interval
         self.tolerance_threshold = tolerance_threshold
@@ -141,8 +140,8 @@ class AutoencoderModel(BaseModel):
         )
         return autoencoder_model, encoder_model
 
-    def predict_on_batch(self, embedding: np.ndarray, model: Model, y_true: np.ndarray,
-                         y_predicted_last: np.ndarray) -> np.ndarray:
+    def predict_on_batch(self, embedding: np.ndarray, model: Model,
+                         y_predicted_last: np.ndarray, y_true: np.ndarray = None) -> np.ndarray:
         """
         Predict On Batch
         :param embedding: Embeddings extracted from datasets
@@ -164,10 +163,11 @@ class AutoencoderModel(BaseModel):
                 adjusted = target_distribution(predicted)
 
                 y_predicted = predicted.argmax(1)
-                y_true_adjusted = np.argmax(y_true, axis=1)
+                if y_true:
+                    y_true_adjusted = np.argmax(y_true, axis=1)
 
-                get_metrics(y_true_adjusted, y_predicted)
-                self.logger.info(f'loss = {loss}')
+                    get_metrics(y_true_adjusted, y_predicted)
+                    self.logger.info(f'loss = {loss}')
 
                 delta_label = np.sum(y_predicted != y_predicted_last).astype(np.float32) / y_predicted.shape[0]
                 y_predicted_last = np.copy(y_predicted)
@@ -187,16 +187,16 @@ class AutoencoderModel(BaseModel):
     def dimensions(self) -> List:
         return [None, 500, 2000, 5000, 10000, 100]
 
-    def predict_encoder(self, dimensions: List, embedding: np.ndarray, name: str) -> Tuple:
+    def predict_encoder(self, dimensions: List, embedding: np.ndarray, name: str, epochs: int = 500) -> Tuple:
         autoencoder_model, encoder_model = self.fit_autoencoder_model(
             dimensions,
             embedding,
             name,
-            epochs=500
+            epochs=epochs
         )
         return encoder_model.predict(embedding, verbose=1), encoder_model
 
-    def compile_clustering_layer(self, encoder_model: Model, cluster_number: int, name: str) -> Model:
+    def __compile_clustering_layer(self, encoder_model: Model, cluster_number: int, name: str) -> Model:
         self.logger.info(f'Clustering - Layer Custom {name}')
         clustering_layer = ClusteringLayer(
             cluster_number, name=f'clustering-{name}'
@@ -207,16 +207,16 @@ class AutoencoderModel(BaseModel):
 
         return model
 
-    def fit_predict_kmeans(self, predict_encoder: Model, cluster_number: int) -> Tuple:
+    def __fit_predict_kmeans(self, predict_encoder: Model, cluster_number: int) -> Tuple:
         self.logger.info('Clustering - K-means')
         kmeans = KMeans(n_clusters=cluster_number, max_iter=100, n_jobs=10, random_state=73)
         y_predicted = kmeans.fit_predict(predict_encoder)
 
         return kmeans, y_predicted
 
-    def predict_autoencoder(self, embedding: np.ndarray, name: str,
-                            items: DataFrameEmbeddings, predicted_embedding: Dict,
-                            data_metrics: List):
+    def fit_predict(self, embedding: np.ndarray, name: str,
+                    cluster_number: int, y_true: np.ndarray,
+                    predicted_embedding: Dict, data_metrics: List):
 
         self.dimensions[0] = embedding.shape[-1]
 
@@ -225,43 +225,18 @@ class AutoencoderModel(BaseModel):
             embedding,
             f"{name}"
         )
-        model = self.compile_clustering_layer(encoder_model, items.cluster_number, f"{name}")
-        kmeans, y_predicted = self.fit_predict_kmeans(predict_encoder, items.cluster_number)
+        model = self.__compile_clustering_layer(encoder_model, cluster_number, f"{name}")
+        kmeans, y_predicted = self.__fit_predict_kmeans(predict_encoder, cluster_number)
 
         model.get_layer(name=f'clustering-{name}').set_weights([kmeans.cluster_centers_])
 
         predicted_embedding[name] = (embedding, y_predicted, model)
 
         data_metrics.append(
-            list((name,) + get_metrics(items.y_true.argmax(1), y_predicted))
+            list((name,) + get_metrics(y_true.argmax(1), y_predicted).to_tuple)
         )
 
         return data_metrics, predicted_embedding
 
     def run(self, dataset_embeddings: LazyDict, save_results: bool = False) -> Tuple:
-        """
-        Method to run model with params defined
-        """
-
-        data_metrics = []
-        predicted_embedding = {}
-        for name, items in dataset_embeddings.items():
-            self.logger.info("-" * 50)
-            self.logger.info("-" * 10, f"Dataset {name}", "-" * 10)
-
-            for embedding_name, embedding in items.embeddings.items():
-                self.logger.info("-" * 50)
-                self.logger.info("-" * 10, f"Embedding {embedding_name}", "-" * 10)
-                data_metrics, predicted_embedding = self.predict_autoencoder(
-                    embedding,
-                    f"{name}-{embedding_name}",
-                    items,
-                    predicted_embedding,
-                    data_metrics
-                )
-                self.logger.info("-" * 50)
-
-        if save_results:
-            self.save_data(f"{self.path}/numpy/predicted_embedding_autoencoder", predicted_embedding)
-
-        return data_metrics, predicted_embedding
+        return super().run(dataset_embeddings, save_results)
