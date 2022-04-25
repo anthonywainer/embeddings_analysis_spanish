@@ -209,7 +209,7 @@ class AutoencoderModel(BaseModel):
 
     def __fit_predict_kmeans(self, predict_encoder: Model, cluster_number: int) -> Tuple:
         self.logger.info('Clustering - K-means')
-        kmeans = KMeans(n_clusters=cluster_number, max_iter=100, n_jobs=10, random_state=73)
+        kmeans = KMeans(n_clusters=cluster_number, max_iter=100, random_state=73)
         y_predicted = kmeans.fit_predict(predict_encoder)
 
         return kmeans, y_predicted

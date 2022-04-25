@@ -13,7 +13,6 @@ class KMeansModel(BaseModel):
     def __init__(self, path: str = "data/results") -> None:
         super().__init__(path)
         self.max_iter = 200
-        self.jobs = 10
         self.random_state = 73
         self.model_name = "hdbscan"
 
@@ -36,7 +35,6 @@ class KMeansModel(BaseModel):
         kmeans = KMeans(
             n_clusters=cluster_number,
             max_iter=self.max_iter,
-            n_jobs=self.jobs,
             random_state=self.random_state
         )
         y_predicted = kmeans.fit_predict(embedding)

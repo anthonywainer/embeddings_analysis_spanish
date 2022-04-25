@@ -16,7 +16,6 @@ class BertEmbedding(BaseEmbedding):
     def __init__(self, bert_name: str = "dccuchile/bert-base-spanish-wwm-uncased") -> None:
         """
         Init embeddings extraction
-        :param numpy_path: Path to save or load vector numpy
         """
 
         super().__init__()

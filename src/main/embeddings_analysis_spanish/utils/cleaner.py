@@ -12,23 +12,28 @@ nltk.download('stopwords')
 nltk.download('wordnet')
 
 
-def get_words(text_content: AnyStr) -> List:
+def get_words(text_content: AnyStr, emoji_replace: bool = False) -> List:
     """ Function to get words from text content
 
-        @param text_content    The text content
+        :param text_content    The text content
+        :param emoji_replace: Configure to change emoji by text
     """
-    text_in_lower = str(text_content).replace('\n', ' ').replace("\t", " ").lower()
+    text = str(text_content).replace('\n', ' ').replace("\t", " ").lower()
 
-    emoji_text = emoji.replace_emoji(text_in_lower)
+    if emoji_replace:
+        emoji = EmojiDecode()
+        text = emoji.replace_emoji(text)
 
-    only_text = re.sub(r'(#\w+)|(.#\w+)|(@\w+)|(.@\w+)|(http\S+)|([^a-záéíóúñ ]+)', ' ', emoji_text)
+    only_text = re.sub(r'(#\w+)|(.#\w+)|(@\w+)|(.@\w+)|(http\S+)|([^a-záéíóúñ ]+)', ' ', text)
     dropped_words = set(only_text.split())
     return list(dropped_words)
 
 
-def processing_words(text_content: AnyStr, own_words: List = None, lang="spanish") -> AnyStr:
+def processing_words(text_content: AnyStr, own_words: List = None,
+                     lang="spanish", emoji_replace: bool = False) -> AnyStr:
     """ Function to processing words from text content
 
+        :param emoji_replace: Configure to change emoji by text
         :param lang: language
         :param text_content    The text content
         :param own_words       Words customized
@@ -36,7 +41,7 @@ def processing_words(text_content: AnyStr, own_words: List = None, lang="spanish
 
     if own_words is None:
         own_words = []
-    words = get_words(text_content)
+    words = get_words(text_content, emoji_replace)
 
     spanish_stops = set(stopwords.words(lang) + own_words)
 
@@ -44,8 +49,10 @@ def processing_words(text_content: AnyStr, own_words: List = None, lang="spanish
 
 
 class EmojiDecode:
+    __URL_GIT__ = 'https://github.com/anthonywainer/embeddings_analysis_spanish/blob/master/data/\
+    emoticones.json?raw=true'
 
-    def __init__(self, emoji_path: AnyStr) -> None:
+    def __init__(self, emoji_path: AnyStr = __URL_GIT__) -> None:
         emoji_file = requests.get(emoji_path)
         self.emojis = json.loads(emoji_file.text)
 
@@ -68,7 +75,3 @@ class EmojiDecode:
             return text
 
         return self.multiple_replace(emojis, text)
-
-
-__URL_GIT__ = 'https://github.com/anthonywainer/embeddings_analysis_spanish/blob/master/data/emoticones.json?raw=true'
-emoji = EmojiDecode(__URL_GIT__)
