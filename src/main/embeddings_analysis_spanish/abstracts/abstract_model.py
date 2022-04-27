@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Tuple, Union
+from typing import Tuple, Union, Iterator
 
 import pandas as pd
 
 
 class AbstractModel(ABC):
 
-    def _show_result(self, data) -> pd.DataFrame: ...
+    def _show_result(self, data: Iterator) -> pd.DataFrame: ...
 
     @staticmethod
     def __save_data(path, predicted_embedding: Union) -> None: ...

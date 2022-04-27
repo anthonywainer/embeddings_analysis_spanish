@@ -1,4 +1,4 @@
-from typing import Union, Tuple
+from typing import Union, Tuple, Iterator
 
 import numpy as np
 import pandas as pd
@@ -14,7 +14,7 @@ class BaseModel(AbstractModel, Logger):
         self.path = path
         self.model_name = None
 
-    def _show_result(self, data) -> pd.DataFrame:
+    def _show_result(self, data: Iterator) -> pd.DataFrame:
         df = pd.DataFrame(
             data,
             columns=["Process", "ACC", "NMI", "ARI"]

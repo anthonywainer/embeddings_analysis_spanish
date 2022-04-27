@@ -13,10 +13,10 @@ class HDBSCANModel(BaseModel):
         super().__init__(path)
         self.model_name = "hdbscan"
 
-    def fit_predict_hdbscan(self, embedding: np.ndarray,
-                            name: str, cluster_number: int,
-                            y_true: np.ndarray, predicted_embedding: Dict,
-                            data_metrics: List) -> Tuple:
+    def fit_predict(self, embedding: np.ndarray,
+                    name: str, cluster_number: int,
+                    y_true: np.ndarray, predicted_embedding: Dict,
+                    data_metrics: List) -> Tuple:
         """
         Method to configure HDBSCAN model and fit-train
         :param embedding: The embeddings values
@@ -33,7 +33,8 @@ class HDBSCANModel(BaseModel):
             embedding,
             metric='euclidean',
             cluster_selection_method='eom',
-            n_clusters=cluster_number
+            n_clusters=cluster_number,
+            prediction_data=True
         )
         y_predicted = model.labels_ + 1
         predicted_embedding[name] = (embedding, y_predicted, model)

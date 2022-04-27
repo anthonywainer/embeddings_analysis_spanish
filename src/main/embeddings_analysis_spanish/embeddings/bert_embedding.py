@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import numpy as np
 import tensorflow as tf
 
@@ -23,6 +25,12 @@ class BertEmbedding(BaseEmbedding):
         self.bert_model = None
         self.bert_tokenizer = None
 
+    def load_pretrained(self) -> Tuple[TFBertModel.from_pretrained, BertTokenizer.from_pretrained]:
+        self.bert_model = TFBertModel.from_pretrained(self.bert_name)
+        self.bert_tokenizer = BertTokenizer.from_pretrained(self.bert_name, do_lower_case=True)
+
+        return self.bert_model, self.bert_tokenizer
+
     def extract_bert_embedding(self, texts: np.array) -> np.ndarray:
         """
         Method to extract embeddings from Bert
@@ -30,8 +38,7 @@ class BertEmbedding(BaseEmbedding):
         :return: dimensional array with embeddings
         """
         if self.bert_model is None:
-            self.bert_model = TFBertModel.from_pretrained(self.bert_name)
-            self.bert_tokenizer = BertTokenizer.from_pretrained(self.bert_name, do_lower_case=True)
+            self.bert_model, self.bert_tokenizer = self.load_pretrained()
 
         max_len = 768
         _array = np.ndarray(shape=(len(texts), max_len), dtype=np.float32)

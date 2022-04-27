@@ -46,21 +46,22 @@ class BaseEmbedding(Logger, BertEmbedding, GPTEmbedding, GensimEmbedding):
             "glove": (self.extract_gensim_embedding, (embedding_name, values, max_len))
         }).get(embedding_name)
 
-    def extract_embedding(self, embedding_name: str, dataset_name: str, x_: np.array, max_len: int = 300) -> np.ndarray:
+    def extract_embedding(self, embedding_name: str, dataset_name: str, values: np.array,
+                          max_len: int = 300) -> np.ndarray:
         """
         Method to load or save array with embeddings
         :param embedding_name: Name to extract
         :param dataset_name: Dataset name to process
-        :param x_: Words to process
+        :param values: Words to process
         :param max_len: Max length to create dimension
         :return: dimensional array with embeddings
         """
 
         if not os.path.exists(f"{self.numpy_path}/{dataset_name}/{embedding_name}.npz"):
-            vec = self.extract(embedding_name, x_.values, max_len)
-            np.savez(f"{self.numpy_path}/{dataset_name}/{embedding_name}", vec)
+            vectors = self.extract(embedding_name, values.values, max_len)
+            np.savez(f"{self.numpy_path}/{dataset_name}/{embedding_name}", vectors)
             self.logger.info(f"saved successfully - {self.numpy_path}/{dataset_name}/{embedding_name}.npz")
-            return vec
+            return vectors
         else:
             self.logger.info("loaded successfully")
             return np.load(f"{self.numpy_path}/{dataset_name}/{embedding_name}.npz", allow_pickle=True)["arr_0"]
