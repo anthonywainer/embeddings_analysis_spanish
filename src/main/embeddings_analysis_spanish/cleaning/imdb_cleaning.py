@@ -2,8 +2,8 @@ from typing import List
 
 import pandas as pd
 
-from .base_cleaning import BaseCleaning
-from ..utils.cleaner import processing_words
+from embeddings_analysis_spanish.cleaning.base_cleaning import BaseCleaning
+from embeddings_analysis_spanish.utils.cleaner import processing_words
 
 
 class IMDBCleaning(BaseCleaning):
@@ -17,10 +17,10 @@ class IMDBCleaning(BaseCleaning):
 
         dataset = dataset[dataset.review_es.apply(
             lambda x: cld3.get_language(x).language != "en"
-        )][["review_es", "sentimiento", "clean_review"]]
+        )][["review_es", "sentimiento", "clean_review_es"]]
 
         dataset = dataset.rename(columns={"clean_review_es": "clean_review", "sentimiento": "sentiment"})
-        dataset.to_excel(f"{self.path}/translated/IMDBPreClean.xlsx", index=False)
+        self.write_dataframe(dataset, f"{self.path}/translated/IMDBPreClean.xlsx")
 
     @property
     def __columns(self) -> List:
@@ -37,4 +37,4 @@ class IMDBCleaning(BaseCleaning):
         dataset = pd.concat([positive_df, negative_df])[self.__columns]
 
         dataset = dataset.sort_values(by=['sentiment'])
-        dataset.to_excel(f"{self.path}/processed/imdb_reviews_processed.xlsx", index=False)
+        self.write_dataframe(dataset, f"{self.path}/processed/imdb_reviews_processed.xlsx")

@@ -3,19 +3,18 @@ from typing import List
 import pandas as pd
 from textblob import TextBlob
 
-from .base_cleaning import BaseCleaning
-from ..utils.cleaner import processing_words
+from embeddings_analysis_spanish.cleaning.base_cleaning import BaseCleaning
+from embeddings_analysis_spanish.utils.cleaner import processing_words
 
 
 class FoodCleaning(BaseCleaning):
 
-    @staticmethod
-    def __get_polarity(text: str) -> str:
+    def __get_polarity(self, text: str) -> str:
         try:
             t = TextBlob(text)
             return t.translate(from_lang="es", to="en").correct().sentiment.polarity
         except Exception as e:
-            print("ERROR", e)
+            self.logger.error("ERROR", e)
             return ""
 
     def pre_cleaning(self) -> None:
@@ -45,13 +44,13 @@ class FoodCleaning(BaseCleaning):
 
         new_dataset = pd.concat([df1, df2, df3])
 
-        new_dataset.to_excel(f"{self.path}/translated/FoodReviewsPreClean.xlsx", index=False)
+        self.write_dataframe(new_dataset, f"{self.path}/translated/FoodReviewsPreClean.xlsx")
 
     @property
     def __columns(self) -> List:
         return ["id_review", "review", "clean_review", "sentiment", "words_len", "polarity"]
 
     def process(self) -> None:
-        dataset = pd.read_excel(f"{self.path}/translated/food_reviews_es.xlsx")
+        dataset = self.read_dataframe(f"{self.path}/translated/food_reviews_es.xlsx")
         dataset = dataset.sort_values(by=['sentiment'])[self.__columns]
-        dataset.to_excel(f"{self.path}/processed/food_reviews_processed.xlsx", index=False)
+        self.write_dataframe(dataset, f"{self.path}/processed/food_reviews_processed.xlsx")

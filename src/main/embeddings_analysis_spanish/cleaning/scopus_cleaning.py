@@ -2,8 +2,8 @@ from typing import List
 
 import pandas as pd
 
-from .base_cleaning import BaseCleaning
-from ..utils.cleaner import processing_words
+from embeddings_analysis_spanish.cleaning.base_cleaning import BaseCleaning
+from embeddings_analysis_spanish.utils.cleaner import processing_words
 
 
 class ScopusCleaning(BaseCleaning):
@@ -14,7 +14,10 @@ class ScopusCleaning(BaseCleaning):
                 "economia", "salud", "tecnologia"]
 
     def process(self) -> None:
-        dataset = pd.read_excel(f"{self.path}/translated/paper_scopus_es.xlsx")
+        """
+        Building Sample > 50 words length
+        """
+        dataset = self.read_dataframe(f"{self.path}/translated/paper_scopus_es.xlsx")
 
         dataset.loc[:, 'clean_abstract'] = dataset.abstract.apply(processing_words)
         dataset = dataset.drop_duplicates(subset='DOI', keep="last")
@@ -29,4 +32,4 @@ class ScopusCleaning(BaseCleaning):
         )
 
         dataset = dataset.sort_values(by=['category'])
-        dataset.to_excel(f"{self.path}/processed/paper_scopus_processed.xlsx", index=False)
+        self.write_dataframe(dataset, f"{self.path}/processed/paper_scopus_processed.xlsx")

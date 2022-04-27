@@ -185,9 +185,21 @@ class AutoencoderModel(BaseModel):
 
     @property
     def dimensions(self) -> List:
+        """
+        List of weight dimensions applied to model
+        :return: Weight dimensions
+        """
         return [None, 500, 2000, 5000, 10000, 100]
 
     def predict_encoder(self, dimensions: List, embedding: np.ndarray, name: str, epochs: int = 500) -> Tuple:
+        """
+        Model to predict encoder
+        :param dimensions: Weight dimensions
+        :param embedding: Embeddings extracted from datasets
+        :param name: Process name
+        :param epochs: Epochs Number
+        :return: encoder values and autoencoder model
+        """
         autoencoder_model, encoder_model = self.fit_autoencoder_model(
             dimensions,
             embedding,
@@ -197,6 +209,13 @@ class AutoencoderModel(BaseModel):
         return encoder_model.predict(embedding, verbose=1), encoder_model
 
     def __compile_clustering_layer(self, encoder_model: Model, cluster_number: int, name: str) -> Model:
+        """
+        Compile custom layer
+        :param encoder_model: The encoder model
+        :param cluster_number: The cluster number
+        :param name: Process name
+        :return: Custom Clustering Layer
+        """
         self.logger.info(f'Clustering - Layer Custom {name}')
         clustering_layer = ClusteringLayer(
             cluster_number, name=f'clustering-{name}'
@@ -208,6 +227,12 @@ class AutoencoderModel(BaseModel):
         return model
 
     def __fit_predict_kmeans(self, predict_encoder: Model, cluster_number: int) -> Tuple:
+        """
+        Fit predict Kmeans model with encoder values
+        :param predict_encoder: Encoder values
+        :param cluster_number: The cluster number
+        :return: Model Kmeans and Values predicted
+        """
         self.logger.info('Clustering - K-means')
         kmeans = KMeans(n_clusters=cluster_number, max_iter=100, random_state=73)
         y_predicted = kmeans.fit_predict(predict_encoder)
@@ -217,6 +242,16 @@ class AutoencoderModel(BaseModel):
     def fit_predict(self, embedding: np.ndarray, name: str,
                     cluster_number: int, y_true: np.ndarray,
                     predicted_embedding: Dict, data_metrics: List):
+        """
+        Fit Predict Autoencoder Model
+        :param embedding: Embeddings extracted from datasets
+        :param name: Process name
+        :param cluster_number: The cluster number
+        :param y_true: Original labels
+        :param predicted_embedding: Dict to save embedding predicted
+        :param data_metrics:  Result metrics
+        :return: Embeddings predicted, Result metrics
+        """
 
         dimensions = self.dimensions
         dimensions[0] = embedding.shape[-1]
