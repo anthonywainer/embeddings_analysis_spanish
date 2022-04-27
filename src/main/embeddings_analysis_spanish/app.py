@@ -14,13 +14,13 @@ def main() -> None:
     )
 
     kmeans_model = KMeansModel()
-    kmeans_model.run(dataset_embeddings)
+    data_metrics_kmeans, predicted_embedding_kmeans = kmeans_model.run(dataset_embeddings)
 
     autoencoder_model = AutoencoderModel()
-    autoencoder_model.run(dataset_embeddings)
+    data_metrics_autoencoder, predicted_embedding_autoencoder = autoencoder_model.run(dataset_embeddings)
 
     hdbscan_model = HDBSCANModel()
-    hdbscan_model.run(dataset_embeddings)
+    data_metrics_hdbscan, predicted_embedding_hdbscan = hdbscan_model.run(dataset_embeddings)
 
     if __name__ == "__main__":
         main()

@@ -3,7 +3,6 @@ from typing import List
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
-from embeddings_analysis_spanish.embeddings.base_embedding import BaseEmbedding
 from embeddings_analysis_spanish.models.dataframe_model import DataframeModel
 from embeddings_analysis_spanish.utils.logger import Logger
 from embeddings_analysis_spanish.utils.mapping import LazyDict
@@ -19,7 +18,6 @@ class ProcessDataFrames(Logger):
         self.label_encoder = LabelEncoder()
         self.path = path
         self.dataset_path = f"{path}/dataset/processed"
-        self.base_embedding = BaseEmbedding(f"{path}/gensim", f"{path}/numpy")
 
     def read_dataframe(self, name: str) -> pd.DataFrame:
         self.logger.info(f"Reading Dataset from {self.dataset_path}/{name}_processed.xlsx")

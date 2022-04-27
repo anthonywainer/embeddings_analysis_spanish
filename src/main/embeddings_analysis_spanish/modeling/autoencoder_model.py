@@ -218,10 +218,11 @@ class AutoencoderModel(BaseModel):
                     cluster_number: int, y_true: np.ndarray,
                     predicted_embedding: Dict, data_metrics: List):
 
-        self.dimensions[0] = embedding.shape[-1]
+        dimensions = self.dimensions
+        dimensions[0] = embedding.shape[-1]
 
         predict_encoder, encoder_model = self.predict_encoder(
-            self.dimensions,
+            dimensions,
             embedding,
             f"{name}"
         )

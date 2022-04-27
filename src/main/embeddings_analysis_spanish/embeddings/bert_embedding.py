@@ -6,10 +6,10 @@ import tensorflow as tf
 from transformers import BertTokenizer, TFBertModel
 from sklearn.preprocessing import StandardScaler
 
-from embeddings_analysis_spanish.embeddings.base_embedding import BaseEmbedding
+from embeddings_analysis_spanish.utils.logger import Logger
 
 
-class BertEmbedding(BaseEmbedding):
+class BertEmbedding(Logger):
     """
     Bert Embedding
     * BETO - @author: dccuchile/bert-base-spanish-wwm-uncased

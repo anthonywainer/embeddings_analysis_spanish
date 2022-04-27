@@ -3,10 +3,10 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from transformers import TFGPT2Model, GPT2Tokenizer, pipeline
 
-from embeddings_analysis_spanish.embeddings.base_embedding import BaseEmbedding
+from embeddings_analysis_spanish.utils.logger import Logger
 
 
-class GPTEmbedding(BaseEmbedding):
+class GPTEmbedding(Logger):
     """
     GPT Embedding
     * GPT2 - @author: datificate/gpt2-small-spanish

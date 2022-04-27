@@ -6,11 +6,10 @@ import numpy as np
 from embeddings_analysis_spanish.embeddings.bert_embedding import BertEmbedding
 from embeddings_analysis_spanish.embeddings.gensim_embedding import GensimEmbedding
 from embeddings_analysis_spanish.embeddings.gpt_embedding import GPTEmbedding
-from embeddings_analysis_spanish.utils.logger import Logger
 from embeddings_analysis_spanish.utils.mapping import LazyDict
 
 
-class BaseEmbedding(Logger, BertEmbedding, GPTEmbedding, GensimEmbedding):
+class BaseEmbedding(BertEmbedding, GPTEmbedding, GensimEmbedding):
     """
     Base Embedding
     """
@@ -25,10 +24,6 @@ class BaseEmbedding(Logger, BertEmbedding, GPTEmbedding, GensimEmbedding):
         super().__init__()
         self.gensim_path = gensim_path
         self.numpy_path = numpy_path
-
-    @property
-    def embeddings(self) -> List:
-        return ["gpt2", "bert", "w2v", "fast_text", "glove"]
 
     def extract(self, embedding_name: str, values: np.array, max_len: int) -> np.ndarray:
         """
@@ -65,3 +60,7 @@ class BaseEmbedding(Logger, BertEmbedding, GPTEmbedding, GensimEmbedding):
         else:
             self.logger.info("loaded successfully")
             return np.load(f"{self.numpy_path}/{dataset_name}/{embedding_name}.npz", allow_pickle=True)["arr_0"]
+
+    @property
+    def embeddings_analysis(self) -> List:
+        return ["gpt2", "bert", "w2v", "fast_text", "glove"]

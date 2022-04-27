@@ -5,10 +5,10 @@ from gensim.models import KeyedVectors
 
 from sklearn.preprocessing import StandardScaler
 
-from embeddings_analysis_spanish.embeddings.base_embedding import BaseEmbedding
+from embeddings_analysis_spanish.utils.logger import Logger
 
 
-class GensimEmbedding(BaseEmbedding):
+class GensimEmbedding(Logger):
     """
     Based in gensim @author: dccuchile
     * W2V

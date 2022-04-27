@@ -32,7 +32,7 @@ class HDBSCANModel(BaseModel):
         model = HDBSCAN_flat(
             embedding,
             metric='euclidean',
-            cluster_selection_method='eom',
+            cluster_selection_method='leaf',
             n_clusters=cluster_number,
             prediction_data=True
         )

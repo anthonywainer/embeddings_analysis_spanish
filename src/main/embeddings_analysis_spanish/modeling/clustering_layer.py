@@ -68,7 +68,7 @@ class ClusteringLayer(Layer):
         """
         q = 1.0 / (1.0 + (
                 backend.sum(
-                    backend.square(backend.expand_dims(inputs, axis=1) - self.clusters), axis=2
+                    backend.square(backend.expand_dims(inputs, axis=1) - self.n_clusters), axis=2
                 ) / self.alpha
         ))
 

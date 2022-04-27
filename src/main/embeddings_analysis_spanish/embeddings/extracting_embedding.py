@@ -2,6 +2,7 @@ from typing import List
 
 import pandas as pd
 from keras.utils.np_utils import to_categorical
+from sklearn.preprocessing import LabelEncoder
 
 from embeddings_analysis_spanish.embeddings.base_embedding import BaseEmbedding
 from embeddings_analysis_spanish.models.dataframe_model import DataframeModel
@@ -24,6 +25,7 @@ class ExtractingEmbedding(BaseEmbedding):
         super().__init__()
         self.gensim_path = gensim_path
         self.numpy_path = numpy_path
+        self.label_encoder = LabelEncoder()
 
     def get_embedding(self, dataframe: pd.DataFrame, data: DataframeModel, label_encoder) -> EmbeddingsModel:
         x_values = dataframe[data.clean_field].astype(str)
@@ -37,7 +39,7 @@ class ExtractingEmbedding(BaseEmbedding):
             embedding: (
                 self.extract_embedding,
                 (embedding, data.dataframe_name, x_values)
-            ) for embedding in self.embeddings
+            ) for embedding in self.embeddings_analysis
         })
 
         return EmbeddingsModel(dataframe, x_values, y_true, cluster_number, embeddings, labels_encoders)
