@@ -33,12 +33,14 @@ class BaseEmbedding(BertEmbedding, GPTEmbedding, GensimEmbedding):
         :param max_len: Max length to create dimension
         :return: dimensional array with embeddings
         """
+        vector_embedding_path = f"{self.gensim_path}/{embedding_name}.vec"
+
         return LazyDict({
             "gpt2": (self.extract_gpt_embedding, (values,)),
             "bert": (self.extract_bert_embedding, (values,)),
-            "w2v": (self.extract_gensim_embedding, (embedding_name, values, max_len)),
-            "fast_text": (self.extract_gensim_embedding, (embedding_name, values, max_len)),
-            "glove": (self.extract_gensim_embedding, (embedding_name, values, max_len))
+            "w2v": (self.extract_gensim_embedding, (embedding_name, values, max_len, vector_embedding_path)),
+            "fast_text": (self.extract_gensim_embedding, (embedding_name, values, max_len, vector_embedding_path)),
+            "glove": (self.extract_gensim_embedding, (embedding_name, values, max_len, vector_embedding_path))
         }).get(embedding_name)
 
     def extract_embedding(self, embedding_name: str, dataset_name: str, values: np.array,
@@ -51,15 +53,16 @@ class BaseEmbedding(BertEmbedding, GPTEmbedding, GensimEmbedding):
         :param max_len: Max length to create dimension
         :return: dimensional array with embeddings
         """
+        numpy_embedding_path = f"{self.numpy_path}/{dataset_name}/{embedding_name}.npz"
 
-        if not os.path.exists(f"{self.numpy_path}/{dataset_name}/{embedding_name}.npz"):
+        if not os.path.exists(numpy_embedding_path):
             vectors = self.extract(embedding_name, values.values, max_len)
             np.savez(f"{self.numpy_path}/{dataset_name}/{embedding_name}", vectors)
-            self.logger.info(f"saved successfully - {self.numpy_path}/{dataset_name}/{embedding_name}.npz")
+            self.logger.info(f"saved successfully - {numpy_embedding_path}")
             return vectors
         else:
             self.logger.info("loaded successfully")
-            return np.load(f"{self.numpy_path}/{dataset_name}/{embedding_name}.npz", allow_pickle=True)["arr_0"]
+            return np.load(numpy_embedding_path, allow_pickle=True)["arr_0"]
 
     @property
     def embeddings_analysis(self) -> List:

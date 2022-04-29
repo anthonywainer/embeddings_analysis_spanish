@@ -26,15 +26,18 @@ class IMDBCleaning(BaseCleaning):
     def __columns(self) -> List:
         return ["id", "review", "clean_review", "sentiment", "words_len"]
 
+    def sample_df(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+        dataframe["words_len"] = dataframe.clean_review.apply(lambda c: len(set(c.split())))
+        dataframe["id"] = range(0, len(dataframe))
+
+        positive_df = dataframe[(dataframe.words_len >= 200) & (dataframe.sentiment == "positivo")][0:1500]
+        negative_df = dataframe[(dataframe.words_len >= 200) & (dataframe.sentiment == "negativo")][0:1500]
+
+        dataframe = pd.concat([positive_df, negative_df])[self.__columns]
+
+        return dataframe.sort_values(by=['sentiment'])
+
     def process(self) -> None:
-        dataset = pd.read_excel(f"{self.path}/translated/imdb_reviews_es.xlsx")
-        dataset["words_len"] = dataset.clean_review.apply(lambda c: len(set(c.split())))
-        dataset["id"] = range(0, len(dataset))
-
-        positive_df = dataset[(dataset.words_len >= 200) & (dataset.sentiment == "positivo")][0:1500]
-        negative_df = dataset[(dataset.words_len >= 200) & (dataset.sentiment == "negativo")][0:1500]
-
-        dataset = pd.concat([positive_df, negative_df])[self.__columns]
-
-        dataset = dataset.sort_values(by=['sentiment'])
-        self.write_dataframe(dataset, f"{self.path}/processed/imdb_reviews_processed.xlsx")
+        dataframe = pd.read_excel(f"{self.path}/translated/imdb_reviews_es.xlsx")
+        dataframe = self.sample_df(dataframe)
+        self.write_dataframe(dataframe, f"{self.path}/processed/imdb_reviews_processed.xlsx")

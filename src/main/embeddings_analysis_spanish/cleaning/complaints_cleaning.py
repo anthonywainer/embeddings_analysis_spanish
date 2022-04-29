@@ -24,36 +24,46 @@ class ComplaintsCleaning(BaseCleaning):
         """
         return ["x" * x for x in range(4, 20)]
 
+    def sample_df(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+        dataframe.loc[:, 'clean_complaints_en'] = dataframe["Consumer Complaint"].apply(
+            lambda d: processing_words(d, self.__own_stop_words, lang="english")
+        )
+
+        dataframe["words_len"] = dataframe["clean_complaints_en"].apply(lambda c: self._count_words(c))
+        return pd.concat(
+            map(
+                lambda f: dataframe[dataframe.words_len >= 50][
+                              (dataframe[dataframe.words_len >= 50].Product == f)
+                          ][:1000],
+                self.__features
+            )
+        ).rename(columns={
+            "Complaint ID": "id",
+            "Consumer Complaint": "complaint",
+            "Product": "product"
+        })
+
     def pre_cleaning(self) -> None:
         """
         Building Sample > 50 words length
         """
-        dataset = self.read_dataframe(f"{self.path}/original/ConsumerComplaints.xlsx")
-
-        dataset.loc[:, 'clean_complaints'] = dataset["Consumer Complaint"].apply(
-            lambda d: processing_words(d, self.__own_stop_words, lang="english")
-        )
-
-        dataset["words_len"] = dataset["clean_complaints"].apply(lambda c: self._count_words(c))
-        dataset = dataset.drop_duplicates(subset='clean_complaints', keep="last")
-        dataset = pd.concat(
-            map(
-                lambda f: dataset[dataset.words_len >= 50][(dataset[dataset.words_len >= 50].Product == f)][:1000],
-                self.__features
-            )
-        )
+        dataframe = self.read_dataframe(f"{self.path}/original/ConsumerComplaints.xlsx")
+        dataframe = self.sample_df(dataframe)
         self.write_dataframe(
-            dataset.sort_values(by=['Product']),
+            dataframe.sort_values(by=['Product']),
             f"{self.path}/translated/ConsumerComplaintsPreClean.xlsx"
         )
 
-    def process(self) -> None:
-        dataset = pd.read_excel(f"{self.path}/translated/complaints_es.xlsx")
-
-        dataset.loc[:, 'clean_complaints'] = dataset["complaint"].apply(
+    def cooking_process(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+        dataframe.loc[:, 'clean_complaints'] = dataframe["complaint"].apply(
             lambda d: processing_words(d, self.__own_stop_words)
         )
-        dataset = dataset.sort_values(
+        return dataframe.sort_values(
             by=['product']
         )
-        self.write_dataframe(dataset, f"{self.path}/processed/complaints_processed.xlsx")
+
+    def process(self) -> None:
+        dataframe = pd.read_excel(f"{self.path}/translated/complaints_es.xlsx")
+        dataframe = self.cooking_process(dataframe)
+
+        self.write_dataframe(dataframe, f"{self.path}/processed/complaints_processed.xlsx")

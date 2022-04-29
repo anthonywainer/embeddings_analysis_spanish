@@ -17,34 +17,35 @@ class FoodCleaning(BaseCleaning):
             self.logger.error("ERROR", e)
             return ""
 
-    def pre_cleaning(self) -> None:
-        dataset = pd.read_csv(f"{self.path}/original/FoodReviews.csv")
-
-        dataset.loc[:, 'clean_review'] = dataset.review.apply(processing_words)
-        dataset = dataset.drop_duplicates(subset='review', keep="last")
-        dataset.sort_index(inplace=True)
-        negative = dataset[dataset.score.astype("int") < 3][:57000]
+    def sample_df(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+        dataframe.loc[:, 'clean_review'] = dataframe.review.apply(processing_words)
+        dataframe = dataframe.drop_duplicates(subset='review', keep="last")
+        dataframe.sort_index(inplace=True)
+        negative = dataframe[dataframe.score.astype("int") < 3][:57000]
         negative["sentiment"] = "negativo"
-        neutro = dataset[dataset.score.astype("int") == 3][:57000]
+        neutro = dataframe[dataframe.score.astype("int") == 3][:57000]
         neutro["sentiment"] = "neutro"
-        positive = dataset[dataset.score.astype("int") > 3][:57000]
+        positive = dataframe[dataframe.score.astype("int") > 3][:57000]
         positive["sentiment"] = "positivo"
-        dataset = pd.concat([negative, neutro, positive])[["id_review", "review", "sentiment", "clean_review"]]
+        dataframe = pd.concat([negative, neutro, positive])[["id_review", "review", "sentiment", "clean_review"]]
 
-        dataset["words_len"] = dataset.clean_review.apply(lambda c: self._count_words(c))
-        nd = dataset[dataset.words_len >= 60]
-        nd['Polarity'] = nd['review'].apply(lambda x: self.__get_polarity(x))
+        dataframe["words_len"] = dataframe.clean_review.apply(lambda c: self._count_words(c))
+        nd = dataframe[dataframe.words_len >= 60]
+        nd['polarity'] = nd['review'].apply(lambda x: self.__get_polarity(x))
 
-        nd.loc[nd.Polarity >= 0.36, 'sentiment'] = 'positive'
-        nd.loc[((nd.Polarity > 0.0) & (nd.Polarity < 0.36)), 'sentiment'] = 'neutral'
-        nd.loc[nd.Polarity < 0, 'sentiment'] = 'negative'
+        nd.loc[nd.polarity >= 0.36, 'sentiment'] = 'positive'
+        nd.loc[((nd.polarity > 0.0) & (nd.polarity < 0.36)), 'sentiment'] = 'neutral'
+        nd.loc[nd.polarity < 0, 'sentiment'] = 'negative'
         df1 = nd[(nd.sentiment != "negativo") & (nd.sentiment == "positive")][0:430]
-        df2 = nd[(nd.Sentiment == "negative")][0:430]
-        df3 = nd[(nd.Sentiment == "neutral")][0:430]
+        df2 = nd[(nd.sentiment == "negative")][0:430]
+        df3 = nd[(nd.sentiment == "neutral")][0:430]
 
-        new_dataset = pd.concat([df1, df2, df3])
+        return pd.concat([df1, df2, df3])
 
-        self.write_dataframe(new_dataset, f"{self.path}/translated/FoodReviewsPreClean.xlsx")
+    def pre_cleaning(self) -> None:
+        dataframe = pd.read_csv(f"{self.path}/original/FoodReviews.csv")
+        dataframe = self.sample_df(dataframe)
+        self.write_dataframe(dataframe, f"{self.path}/translated/FoodReviewsPreClean.xlsx")
 
     @property
     def __columns(self) -> List:

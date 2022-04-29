@@ -13,23 +13,27 @@ class ScopusCleaning(BaseCleaning):
         return ["agricultura", "cultura", "deporte",
                 "economia", "salud", "tecnologia"]
 
-    def process(self) -> None:
-        """
-        Building Sample > 50 words length
-        """
-        dataset = self.read_dataframe(f"{self.path}/translated/paper_scopus_es.xlsx")
+    def sample_df(self, dataframe: pd.DataFrame) -> pd.DataFrame:
+        dataframe.loc[:, 'clean_abstract'] = dataframe.abstract.apply(processing_words)
+        dataframe = dataframe.drop_duplicates(subset='DOI', keep="last")
 
-        dataset.loc[:, 'clean_abstract'] = dataset.abstract.apply(processing_words)
-        dataset = dataset.drop_duplicates(subset='DOI', keep="last")
+        dataframe["words_len"] = dataframe["abstract"].apply(lambda c: self._count_words(c))
 
-        dataset["words_len"] = dataset["abstracts"].apply(lambda c: self._count_words(c))
-
-        dataset = pd.concat(
+        dataframe = pd.concat(
             map(
-                lambda f: dataset[dataset.words_len >= 90][(dataset[dataset.words_len >= 90].category == f)][:500],
+                lambda f: dataframe[dataframe.words_len >= 90][
+                              (dataframe[dataframe.words_len >= 90].category == f)
+                          ][:500],
                 self.__features
             )
         )
 
-        dataset = dataset.sort_values(by=['category'])
-        self.write_dataframe(dataset, f"{self.path}/processed/paper_scopus_processed.xlsx")
+        return dataframe.sort_values(by=['category'])
+
+    def process(self) -> None:
+        """
+        Building Sample > 50 words length
+        """
+        dataframe = self.read_dataframe(f"{self.path}/translated/paper_scopus_es.xlsx")
+        dataframe = self.sample_df(dataframe)
+        self.write_dataframe(dataframe, f"{self.path}/processed/paper_scopus_processed.xlsx")

@@ -15,7 +15,6 @@ class GPTEmbedding(Logger):
     def __init__(self, gpt_name: str = "datificate/gpt2-small-spanish") -> None:
         """
         Init embeddings extraction
-        :param numpy_path: Path to save or load vector numpy
         """
 
         super().__init__()
